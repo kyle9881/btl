@@ -20,10 +20,27 @@
 <input id="amount">
 
 <p>解鎖日期：</p>
-<input type="datetime-local" id="date">
+<input
+  type="datetime-local"
+  id="unlockDate"
+  style="font-size:16px;padding:8px;width:220px;"
+>
 
 <br><br>
 <button onclick="approveAndLock()">一鍵鎖幣</button>
+<br><br>
+
+<label>Lock ID：</label><br>
+<input type="number" id="claimId" placeholder="例如 0">
+<br><br>
+
+<button onclick="claimToken()">
+到期解鎖提領
+</button>
+
+<br><br>
+
+<div id="msg"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
@@ -112,6 +129,43 @@ async function approveAndLock() {
   } catch (e) {
     console.error(e);
     alert("錯誤：" + e.message);
+  }
+}
+async function claimToken() {
+
+  try {
+
+    const id = document.getElementById("claimId").value;
+
+    if (!id) {
+      alert("請輸入 Lock ID");
+      return;
+    }
+
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      ABI,
+      signer
+    );
+
+    document.getElementById("msg").innerHTML =
+      "⏳ 解鎖中...";
+
+    const tx = await contract.claim(id);
+
+    await tx.wait();
+
+    document.getElementById("msg").innerHTML =
+      "✅ 解鎖成功";
+
+    alert("代幣已提領回錢包");
+
+  } catch(err) {
+
+    console.error(err);
+
+    alert("解鎖失敗：" + err.message);
+
   }
 }
 </script>
