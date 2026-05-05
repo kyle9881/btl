@@ -21,6 +21,16 @@
 
 <p>解鎖日期：</p>
 <input type="datetime-local" id="date">
+<br><br>
+
+<p>📱 手機版日期（如果上面不能選）</p>
+
+<input
+  type="text"
+  id="mobileDate"
+  placeholder="2026-06-01 12:00"
+  style="font-size:16px;padding:8px;width:220px;"
+>
 
 <br><br>
 <button onclick="approveAndLock()">一鍵鎖幣</button>
@@ -79,12 +89,23 @@ async function approveAndLock() {
   try {
     const tokenAddr = document.getElementById("token").value;
     const amountInput = document.getElementById("amount").value;
-    const dateInput = document.getElementById("date").value;
+    let dateInput =
+document.getElementById("date").value;
 
-    if (!tokenAddr || !amountInput || !dateInput) {
-      alert("請填完整");
-      return;
-    }
+const mobileDate =
+document.getElementById("mobileDate").value;
+
+// 如果 datetime-local 沒填
+// 就使用手機輸入框
+
+if (!dateInput && mobileDate) {
+  dateInput = mobileDate.replace(" ", "T");
+}
+
+if (!tokenAddr || !amountInput || !dateInput) {
+  alert("請填完整");
+  return;
+}
 
     const token = new ethers.Contract(tokenAddr, erc20ABI, signer);
     const lockerContract = new ethers.Contract(locker, lockerABI, signer);
