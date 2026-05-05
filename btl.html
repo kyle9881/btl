@@ -20,12 +20,23 @@
 <input id="amount">
 
 <p>解鎖日期：</p>
+<p>解鎖日期：</p>
+
 <input
-  type="datetime-local"
+  type="date"
   id="unlockDate"
-  placeholder="2026-06-01t12:00"
-  value="2026-06-01t12:00"
-  style="font-size:16px;padding:8px;width:240px;"
+  style="font-size:16px;padding:8px;"
+>
+
+<br><br>
+
+<p>解鎖時間：</p>
+
+<input
+  type="time"
+  id="unlockTime"
+  value="12:00"
+  style="font-size:16px;padding:8px;"
 >
 <br><br>
 <button onclick="approveAndLock()">一鍵鎖幣</button>
@@ -97,9 +108,13 @@ async function approveAndLock() {
   try {
     const tokenAddr = document.getElementById("token").value;
     const amountInput = document.getElementById("amount").value;
-    const dateInput = document.getElementById("date").value;
+    const date =
+document.getElementById("unlockDate").value;
 
-    if (!tokenAddr || !amountInput || !dateInput) {
+const time =
+document.getElementById("unlockTime").value;
+
+    if (!tokenAddr || !amountInput || !date || !time) {
       alert("請填完整");
       return;
     }
@@ -114,7 +129,9 @@ async function approveAndLock() {
     const amount = ethers.utils.parseUnits(amountInput, decimals);
 
     // ③ 日期轉時間戳
-    const unlockTime = Math.floor(new Date(dateInput).getTime() / 1000);
+    const unlockTime =
+Math.floor(new Date(date + "T" + time).getTime() / 1000);
+    
 
     // ④ approve
     alert("步驟1：請確認 approve");
@@ -144,10 +161,12 @@ async function claimToken() {
     }
 
     const contract = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      ABI,
-      signer
-    );
+  locker,
+  [
+    "function claim(uint256)"
+  ],
+  signer
+);
 
     document.getElementById("msg").innerHTML =
       "⏳ 解鎖中...";
