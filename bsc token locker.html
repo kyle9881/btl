@@ -42,13 +42,39 @@ const lockerABI = [
 ];
 
 async function connect() {
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  document.getElementById("addr").innerText =
-    "已連接: " + await signer.getAddress();
-}
 
+  alert("connect開始");
+
+  if (typeof window.ethereum === 'undefined') {
+    alert("沒有偵測到MetaMask");
+    return;
+  }
+
+  try {
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+
+    alert("provider成功");
+
+    await provider.send("eth_requestAccounts", []);
+
+    signer = provider.getSigner();
+
+    const addr = await signer.getAddress();
+
+    document.getElementById("addr").innerHTML =
+      "已連接：" + addr;
+
+    alert("連接成功");
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("錯誤：" + err.message);
+
+  }
+}
 async function approveAndLock() {
   try {
     const tokenAddr = document.getElementById("token").value;
