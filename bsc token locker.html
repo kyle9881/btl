@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Token Locker</title>
+</head>
+<body style="font-family:sans-serif; padding:20px;">
+
+<h2>🔒 Token Locker</h2>
+
+<button onclick="connect()">連接錢包</button>
+<p id="addr"></p>
+
+<hr>
+
+<p>代幣地址：</p>
+<input id="token" style="width:100%">
+
+<p>數量（例如 5）：</p>
+<input id="amount">
+
+<p>解鎖日期：</p>
+<input type="datetime-local" id="date">
+
+<br><br>
+<button onclick="approveAndLock()">一鍵鎖幣</button>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+<script>
+let provider, signer;
+
+const locker = "0x2952647820691397f0E716081eF74141ACf3645D";
+
+const erc20ABI = [
+  "function approve(address spender,uint256 amount)",
+  "function decimals() view returns (uint8)"
+];
+
+const lockerABI = [
+  "function lock(address,uint256,uint256)"
+];
+
+async function connect() {
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  document.getElementById("addr").innerText =
+    "已連接: " + await signer.getAddress();
+}
+
+async function approveAndLock() {
+  try {
+    const tokenAddr = document.getElementById("token").value;
+    const amountInput = document.getElementById("amount").value;
+    const dateInput = document.getElementById("date").value;
+
+    if (!tokenAddr || !amountInput || !dateInput) {
+      alert("請填完整");
+      return;
+    }
+
+    const token = new ethers.Contract(tokenAddr, erc20ABI, signer);
+    const lockerContract = new ethers.Contract(locker, lockerABI, signer);
+
+    // ① 讀 decimals
+    const decimals = await token.decimals();
+
+    // ② 轉數量
+    const amount = ethers.utils.parseUnits(amountInput, decimals);
+
+    // ③ 日期轉時間戳
+    const unlockTime = Math.floor(new Date(dateInput).getTime() / 1000);
+
+    // ④ approve
+    alert("步驟1：請確認 approve");
+    const tx1 = await token.approve(locker, amount);
+    await tx1.wait();
+
+    // ⑤ lock
+    alert("步驟2：請確認 lock");
+    const tx2 = await lockerContract.lock(tokenAddr, amount, unlockTime);
+    await tx2.wait();
+
+    alert("✅ 完成鎖幣！");
+  } catch (e) {
+    console.error(e);
+    alert("錯誤：" + e.message);
+  }
+}
+</script>
+
+</body>
+</html>
