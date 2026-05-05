@@ -20,39 +20,10 @@
 <input id="amount">
 
 <p>解鎖日期：</p>
-<p>解鎖日期：</p>
+<input type="datetime-local" id="date">
 
-<input
-  type="date"
-  id="unlockDate"
-  style="font-size:16px;padding:8px;"
->
-
-<br><br>
-
-<p>解鎖時間：</p>
-
-<input
-  type="time"
-  id="unlockTime"
-  value="12:00"
-  style="font-size:16px;padding:8px;"
->
 <br><br>
 <button onclick="approveAndLock()">一鍵鎖幣</button>
-<br><br>
-
-<label>Lock ID：</label><br>
-<input type="number" id="claimId" placeholder="例如 0">
-<br><br>
-
-<button onclick="claimToken()">
-到期解鎖提領
-</button>
-
-<br><br>
-
-<div id="msg"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
@@ -108,13 +79,9 @@ async function approveAndLock() {
   try {
     const tokenAddr = document.getElementById("token").value;
     const amountInput = document.getElementById("amount").value;
-    const date =
-document.getElementById("unlockDate").value;
+    const dateInput = document.getElementById("date").value;
 
-const time =
-document.getElementById("unlockTime").value;
-
-    if (!tokenAddr || !amountInput || !date || !time) {
+    if (!tokenAddr || !amountInput || !dateInput) {
       alert("請填完整");
       return;
     }
@@ -129,9 +96,7 @@ document.getElementById("unlockTime").value;
     const amount = ethers.utils.parseUnits(amountInput, decimals);
 
     // ③ 日期轉時間戳
-    const unlockTime =
-Math.floor(new Date(date + "T" + time).getTime() / 1000);
-    
+    const unlockTime = Math.floor(new Date(dateInput).getTime() / 1000);
 
     // ④ approve
     alert("步驟1：請確認 approve");
@@ -147,45 +112,6 @@ Math.floor(new Date(date + "T" + time).getTime() / 1000);
   } catch (e) {
     console.error(e);
     alert("錯誤：" + e.message);
-  }
-}
-async function claimToken() {
-
-  try {
-
-    const id = document.getElementById("claimId").value;
-
-    if (!id) {
-      alert("請輸入 Lock ID");
-      return;
-    }
-
-    const contract = new ethers.Contract(
-  locker,
-  [
-    "function claim(uint256)"
-  ],
-  signer
-);
-
-    document.getElementById("msg").innerHTML =
-      "⏳ 解鎖中...";
-
-    const tx = await contract.claim(id);
-
-    await tx.wait();
-
-    document.getElementById("msg").innerHTML =
-      "✅ 解鎖成功";
-
-    alert("代幣已提領回錢包");
-
-  } catch(err) {
-
-    console.error(err);
-
-    alert("解鎖失敗：" + err.message);
-
   }
 }
 </script>
