@@ -48,7 +48,38 @@
 </button>
 
 <br><br>
+<hr>
 
+<h3>
+🔍 查詢交易哈希 / Check TX Hash
+</h3>
+
+<input
+id="txHash"
+placeholder="貼上鎖幣交易 Hash"
+style="
+width:100%;
+padding:12px;
+font-size:16px;
+"
+>
+
+<br><br>
+
+<button
+onclick="checkTxHash()"
+style="
+width:100%;
+padding:14px;
+background:#16a34a;
+color:white;
+border:none;
+border-radius:10px;
+font-size:16px;
+"
+>
+🔍 查詢解鎖日期 / Check Unlock Time
+</button>
 <div id="msg"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -188,6 +219,95 @@ async function claimToken() {
     alert("解鎖失敗：" + err.message);
 
   }
+}
+async function checkTxHash(){
+
+try{
+
+    const hash =
+    document.getElementById("txHash").value;
+
+    if(!hash){
+
+        alert("請輸入 TX Hash");
+
+        return;
+    }
+
+    // 讀交易資料
+
+    const tx =
+    await provider.getTransaction(hash);
+
+    if(!tx){
+
+        alert("找不到交易");
+
+        return;
+    }
+
+    // 解碼 lock()
+
+    const iface =
+    new ethers.utils.Interface([
+
+        "function lock(address token,uint256 amount,uint256 unlockTime)"
+
+    ]);
+
+    const decoded =
+    iface.parseTransaction({
+
+        data: tx.data,
+
+        value: tx.value
+
+    });
+
+    // 取 unlockTime
+
+    const unlockTime =
+    decoded.args.unlockTime.toNumber();
+
+    // 日期
+
+    const unlockDate =
+    new Date(unlockTime * 1000);
+
+    // 剩餘天數
+
+    const diff =
+    unlockDate - Date.now();
+
+    const days =
+    Math.floor(diff / 86400000);
+
+    alert(
+
+        "解鎖日期:\\n\\n" +
+
+        unlockDate +
+
+        "\\n\\n剩餘天數:\\n\\n" +
+
+        days + " 天"
+
+    );
+
+}catch(err){
+
+    console.error(err);
+
+    alert(
+
+        "查詢失敗\\n\\n" +
+
+        err.message
+
+    );
+
+}
+
 }
 </script>
 
