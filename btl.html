@@ -106,7 +106,7 @@ async function approveAndLock() {
     const tokenAddr = document.getElementById("token").value;
     const amountInput = document.getElementById("amount").value;
     let dateInput =
-document.getElementById("date").value;
+document.getElementById("unlockDate").value;
 
 const mobileDate =
 document.getElementById("mobileDate").value;
@@ -162,10 +162,12 @@ async function claimToken() {
     }
 
     const contract = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      ABI,
-      signer
-    );
+  locker,
+  [
+    "function claim(uint256)"
+  ],
+  signer
+);
 
     document.getElementById("msg").innerHTML =
       "⏳ 解鎖中...";
