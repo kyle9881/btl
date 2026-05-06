@@ -46,22 +46,7 @@
 <button onclick="claimToken()">
 到期解鎖提領
 </button>
-<br><br>
 
-<button
-onclick="checkLock()"
-style="
-width:100%;
-padding:14px;
-background:#16a34a;
-color:white;
-border:none;
-border-radius:10px;
-font-size:16px;
-"
->
-📋 查詢鎖倉 / Check Lock
-</button>
 <br><br>
 
 <div id="msg"></div>
@@ -203,89 +188,6 @@ async function claimToken() {
     alert("解鎖失敗：" + err.message);
 
   }
-}
-async function checkLock(){
-
-try{
-
-    const id =
-    document.getElementById("claimId").value;
-
-    if(id === ""){
-
-        alert("請輸入 Lock ID");
-
-        return;
-    }
-
-    const contract =
-    new ethers.Contract(
-
-        locker,
-
-        [
-
-        "function locks(uint256) view returns(address token,address owner,uint256 amount,uint256 unlockTime,bool claimed)"
-
-        ],
-
-        provider
-
-    );
-
-    const data =
-    await contract.locks(id);
-
-    const unlockDate =
-    new Date(
-        data.unlockTime.toNumber() * 1000
-    );
-
-    const now =
-    Date.now();
-
-    const diff =
-    unlockDate - now;
-
-    const days =
-    Math.floor(diff / 86400000);
-
-    alert(
-
-        "Token:\\n" +
-
-        data.token +
-
-        "\\n\\nOwner:\\n" +
-
-        data.owner +
-
-        "\\n\\nAmount:\\n" +
-
-        data.amount +
-
-        "\\n\\nUnlock Time:\\n" +
-
-        unlockDate +
-
-        "\\n\\n剩餘天數:\\n" +
-
-        days +
-
-        "\\n\\nClaimed:\\n" +
-
-        data.claimed
-
-    );
-
-}catch(err){
-
-    console.error(err);
-
-    alert(err.message);
-
-}
-
 }
 </script>
 
